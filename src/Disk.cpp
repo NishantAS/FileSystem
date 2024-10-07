@@ -163,34 +163,8 @@ std::string fsext2::Disk::dumpe2fs() noexcept {
   return stream.str();
 }
 
-fsext2::Directory fsext2::Disk::getRoot() noexcept {
-  return Directory(*this, "", 2, std::stack<std::string>());
-}
-
-std::optional<fsext2::DirectoryEntry>
-fsext2::Disk::getEntry(const std::string &path) noexcept {
-  if (path[0] != '/')
-    return {};
-
-  auto parts = std::stack<DirectoryEntry>();
-  parts.push(getRoot());
-  std::string part{};
-  for (auto c : path | std::views::drop(1)) {
-    if (c == '/') {
-      auto top = &parts.top();
-      if (top->getType() == InodeType::Directory) {
-        auto &&entries = dynamic_cast<Directory *>(top)->getDirectoryEntires();
-        if (auto it = entries.find(part); it != entries.end()) {
-          parts.push(it->second);
-        } else {
-          return {};
-        }
-      }
-      part.clear();
-    } else {
-      part += c;
-    }
-  }
-
-  return parts.top();
+fsext2::Navigator fsext2::Disk::getNavigator() noexcept {
+  return Navigator(
+      DirectoryEntry::fromEntry<Directory>(DirectoryEntry(*this, "", 2))
+          .value());
 }

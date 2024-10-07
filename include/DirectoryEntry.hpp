@@ -1,7 +1,10 @@
 #pragma once
 
 #include "Enums.hpp"
+#include <algorithm>
 #include <concepts>
+#include <optional>
+#include <ranges>
 #include <stack>
 #include <string>
 #include <unordered_map>
@@ -72,21 +75,32 @@ class Directory : public DirectoryEntry {
 public:
   static const inline InodeType type = InodeType::Directory;
 
-  const std::unordered_map<std::string, DirectoryEntry> &
-  updateDirectoryEntries();
+  void updateDirectoryEntries();
 
-  const auto &getDirectoryEntires() const { return entries; }
+  decltype(auto) getDirectoryEntires() const {
+    auto keys = std::vector(std::from_range, entries | std::views::keys);
+    std::ranges::sort(keys);
+    return keys;
+  }
 
-  virtual const InodeType getType() const noexcept override {
-    return InodeType::Directory;
+  const std::optional<DirectoryEntry>
+  getDirectoryEntry(const std::string &name) {
+    if (entries.contains(name))
+      return DirectoryEntry(disk, name, entries.at(name).inode);
+    else
+      return {};
   }
 
 private:
-  std::unordered_map<std::string, DirectoryEntry> entries;
   friend class DirectoryEntry;
+  struct DirEntryData {
+    std::uint32_t inode;
+    std::optional<InodeType> type;
+  };
 
   explicit Directory(const DirectoryEntry &dir);
 
+  std::unordered_map<std::string, DirEntryData> entries;
 
   virtual void parseDataBlock(std::uint32_t block) override;
 };

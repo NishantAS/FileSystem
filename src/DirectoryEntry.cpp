@@ -104,8 +104,7 @@ void fsext2::DirectoryEntry::parseTriplyIndirectDataBlock(
   }
 }
 
-const std::unordered_map<std::string, fsext2::DirectoryEntry> &
-fsext2::Directory::updateDirectoryEntries() {
+void fsext2::Directory::updateDirectoryEntries() {
   for (const auto dataBlockPtr : inodeData->directBlockPointers) {
     if (dataBlockPtr) {
       this->parseDataBlock(dataBlockPtr);
@@ -123,7 +122,6 @@ fsext2::Directory::updateDirectoryEntries() {
   if (inodeData->triplyIndirectBlockPointer) {
     this->parseTriplyIndirectDataBlock(inodeData->triplyIndirectBlockPointer);
   }
-  return entries;
 }
 
 fsext2::Directory::Directory(const DirectoryEntry &dir)

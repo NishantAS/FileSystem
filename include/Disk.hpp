@@ -6,6 +6,7 @@
 #include <string>
 
 #include "DirectoryEntry.hpp"
+#include "Naviagtor.hpp"
 
 namespace fsext2 {
 class DiskReader;
@@ -25,9 +26,7 @@ public:
 
   std::string dumpe2fs() noexcept;
 
-  Directory getRoot() noexcept;
-
-  std::optional<DirectoryEntry> getEntry(const std::string &path) noexcept;
+  Navigator getNavigator() noexcept;
 
 private:
   DiskReader *reader;
