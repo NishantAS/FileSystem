@@ -44,4 +44,68 @@ protected:
 
   void parseTriplyIndirectDataBlock(std::uint32_t block);
 };
+
+class Directory : public DirectoryEntry {
+public:
+  Directory(Disk &disk, const std::string &name, std::size_t inode,
+            std::stack<std::string> parent)
+      : DirectoryEntry(disk, name, inode, parent), entries() {
+    updateDirectoryEntries();
+  }
+
+  const std::unordered_map<std::string, DirectoryEntry> &
+  updateDirectoryEntries();
+
+  const auto &getDirectoryEntires() const { return entries; }
+
+  virtual const InodeType getType() const noexcept override {
+    return InodeType::Directory;
+  }
+
+private:
+  std::unordered_map<std::string, DirectoryEntry> entries;
+
+  virtual void parseDataBlock(std::uint32_t block) override;
+};
+
+class File : public DirectoryEntry {
+public:
+  File(Disk &disk, const std::string &name, std::size_t inode,
+       std::stack<std::string> parent)
+      : DirectoryEntry(disk, name, inode, parent) {
+    updateData();
+  }
+
+  virtual const InodeType getType() const noexcept override {
+    return InodeType::File;
+  }
+
+  const std::string &getData() const { return data; }
+
+  const std::string &updateData();
+
+private:
+  virtual void parseDataBlock(std::uint32_t block) override;
+
+  std::string data;
+};
+
+class SymbolicLink : public DirectoryEntry {
+public:
+  SymbolicLink(Disk &disk, const std::string &name, std::size_t inode,
+               std::stack<std::string> parent)
+      : DirectoryEntry(disk, name, inode, parent) {
+    updateData();
+  }
+  virtual const InodeType getType() const noexcept override {
+    return InodeType::SymbolicLink;
+  }
+
+  const std::string &getData() const { return data; }
+  const std::string &updateData();
+
+private:
+  virtual void parseDataBlock(std::uint32_t block) override;
+  std::string data;
+};
 } // namespace fsext2
