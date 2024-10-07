@@ -18,9 +18,10 @@ public:
   ~DiskReader();
 
   void readBlock(std::uint32_t block, char *buffer, std::size_t size = 0,
-                 std::uint8_t offset = 0);
+                 std::size_t offset = 0);
 
-  std::string readString(std::uint32_t block, std::uint32_t offset = 0);
+  std::string readString(std::uint32_t block, std::uint32_t maxSize,
+                         std::uint32_t offset = 0);
 
   Inode readInode(std::uint32_t inode);
 
@@ -69,7 +70,7 @@ inline fsext2::DiskReader::~DiskReader() {
 
 inline void fsext2::DiskReader::readBlock(std::uint32_t block, char *buffer,
                                           std::size_t size,
-                                          std::uint8_t offset) {
+                                          std::size_t offset) {
   if (!size)
     size = config.blockSize;
 
@@ -78,11 +79,12 @@ inline void fsext2::DiskReader::readBlock(std::uint32_t block, char *buffer,
 }
 
 inline std::string fsext2::DiskReader::readString(std::uint32_t block,
+                                                  std::uint32_t maxSize,
                                                   std::uint32_t offset) {
   std::stringbuf buffer;
   image.seekg(block * config.blockSize + offset, std::ios::beg);
-  image.get(buffer, 0x0);
-  return buffer.str();
+  image.get(buffer, '\0');
+  return buffer.str().substr(0, maxSize);
 }
 
 inline fsext2::Inode fsext2::DiskReader::readInode(std::uint32_t inode) {
@@ -97,8 +99,9 @@ inline fsext2::Inode fsext2::DiskReader::readInode(std::uint32_t inode) {
   const auto offset = index % (config.blockSize / config.inodeSize);
 
   Inode buffer = Inode();
-  readBlock(block, reinterpret_cast<char *>(&buffer), sizeof(buffer), offset);
-  return std::move(buffer);
+  readBlock(block, reinterpret_cast<char *>(&buffer), sizeof(buffer),
+            offset * config.inodeSize);
+  return buffer;
 }
 
 inline const std::uint16_t
