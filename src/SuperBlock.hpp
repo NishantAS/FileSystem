@@ -10,6 +10,7 @@ enum RequiredFeatures : std::uint32_t;
 enum ReadOnlyFeatures : std::uint32_t;
 
 struct SuperBlock {
+  friend class fsext2::DiskReader;
   std::uint32_t inodeCount;
   std::uint32_t blockCount;
   std::uint32_t reservedBlockCount;
@@ -35,6 +36,8 @@ struct SuperBlock {
   std::uint32_t versionMajor;
   std::uint16_t uid;
   std::uint16_t gid;
+
+private:
   struct {
     std::uint32_t firstNonReservedInode;
     std::uint16_t inodeSize;
