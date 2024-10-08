@@ -77,10 +77,11 @@ public:
     if (stack.size() == 1) {
       return "/";
     }
-    return {std::from_range,
-            stack | std::views::transform([](Directory const &type) {
-              return type.getName();
-            }) | std::views::join_with('/')};
+    std::string path;
+    for (auto i = 1; i < stack.size(); i++) {
+      path += stack[i].getName() + "/";
+    }
+    return path;
   }
 
 private:

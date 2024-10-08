@@ -8,6 +8,7 @@
 #include <stack>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace fsext2 {
 struct Inode;
@@ -78,7 +79,10 @@ public:
   void updateDirectoryEntries();
 
   decltype(auto) getDirectoryEntires() const {
-    auto keys = std::vector(std::from_range, entries | std::views::keys);
+    std::vector<std::string> keys;
+    for (auto&& key : entries | std::views::keys) {
+      keys.push_back(key);
+    }
     std::ranges::sort(keys);
     return keys;
   }
