@@ -57,7 +57,7 @@ inline fsext2::DiskReader::DiskReader(const std::string &path)
     : image(path, std::ios::binary | std::ios::in), config(), GDToffset(2),
       groupDescriptors({}) {
   if (!image.is_open())
-    throw std::exception("Failed to open disk image");
+    throw std::runtime_error("Failed to open disk image");
 
   this->readSuperBlock();
   this->readGroupDescriptors();
@@ -195,7 +195,7 @@ inline void fsext2::DiskReader::readSuperBlock() {
   image.seekg(1024 - sizeof(config.primarySuperBlock), std::ios::cur);
 
   if (config.primarySuperBlock.magic != 0xEF53)
-    throw std::exception("Not an ext2 filesystem");
+    throw std::runtime_error("Not an ext2 filesystem");
 
   config.blockSize = std::uintmax_t(1024)
                      << config.primarySuperBlock.logBlockSize;

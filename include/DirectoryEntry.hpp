@@ -61,7 +61,7 @@ protected:
   const Inode *inodeData;
 
   virtual void parseDataBlock(std::uint32_t) {
-    throw std::exception("Please implement parsing for the inode type");
+    throw std::runtime_error("Please implement parsing for the inode type");
   }
 
   void parseSinglyIndirectDataBlock(std::uint32_t block);
