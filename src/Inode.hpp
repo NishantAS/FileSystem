@@ -23,7 +23,7 @@ struct Inode {
   union {
     struct {
       std::uint32_t reserved;
-    } linux;
+    } linuxVal;
     struct {
       std::uint32_t translator;
     } hurd;
@@ -47,7 +47,7 @@ struct Inode {
       std::uint16_t uidHigh;
       std::uint16_t gidHigh;
       std::uint32_t reserved;
-    } linux;
+    } linuxVal;
     struct {
       std::uint8_t fragmentNumber;
       std::uint8_t fragmentSize;
