@@ -1,10 +1,21 @@
 # File System (ext2)
 A CLI application that takes an ext2 image file as an input and allows you to navigate and read its contets without modifying it.
 ## Installing
+* Pre compiled binaries for [linux](bin/FileSystem) and [windows](bin/FileSystem.exe).
+
+    or
+* Bulid using the process mentioned [below](#building).
+
+## Building
 ### Requirements
-1. [CMake](https://cmake.org)
-2. C++ compiler (**standard 23 or higher**)
-### Building
+1. [Git](https://git-scm.com)
+2. [CMake](https://cmake.org)
+3. C++ compiler
+    * GCC: ^13.2.0 (Default with 24.04.1 LTS)
+    * MVC: ^19.42.34321.1 (Visual Studio 2022 17.12.0 preview 2.1)
+    * Clang: ^18.1.3 (Default with 24.04.1 LTS)
+
+### Build Process
 1. Clone the repoitory.
     ```bash 
     git clone https://github.com/NishantAS/FileSystem.git
