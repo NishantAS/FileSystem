@@ -1,5 +1,11 @@
 # File System (ext2)
-A CLI application that takes an ext2 image file as an input and allows you to navigate and read its contets without modifying it.
+A CLI application that takes an ext2 image file as an input and allows you to navigate and read its contents without modifying it.
+
+### Tasks completed for Systems and Security SIG Recruitment 2024:
+* [x] Read the superblock and block group descriptor.
+* [x] Locate files in the root directory.
+* [x] Read contents from within subdirectories.
+
 ## Installing
 * Pre compiled binaries for [linux](bin/FileSystem) and [windows](bin/FileSystem.exe).
 
