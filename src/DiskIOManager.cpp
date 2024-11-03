@@ -449,7 +449,7 @@ void fsext2::DiskIOManager::writeBlock(std::uint32_t block, const char *buffer,
 
 void fsext2::DiskIOManager::updateDirectoriesCount(
     std::uint16_t group, std::uint16_t directoriesUsed) {
-  auto GDTStart = config.blockSize * config.GDTOffset * 1ui64;
+  auto GDTStart = config.blockSize * config.GDTOffset * 1ull;
   image.seekg(GDTStart + group * sizeof(GroupDescriptor), std::ios::beg);
   groupDescriptors[group].directoriesCount -= directoriesUsed;
   image.write(reinterpret_cast<char *>(&groupDescriptors[group]),
@@ -475,7 +475,7 @@ void fsext2::DiskIOManager::writeBlockUsageBitmap(
   image.seekg(1024, std::ios::beg);
   image.write(reinterpret_cast<char *>(&config.primarySuperBlock),
               sizeof(config.primarySuperBlock));
-  auto GDTStart = config.blockSize * config.GDTOffset * 1ui64;
+  auto GDTStart = config.blockSize * config.GDTOffset * 1ull;
   image.seekg(GDTStart + group * config.blockSize * sizeof(GroupDescriptor),
               std::ios::beg);
   image.write(reinterpret_cast<char *>(&groupDescriptors[group]),
@@ -504,7 +504,7 @@ void fsext2::DiskIOManager::writeInodeUsageBitmap(
   image.write(reinterpret_cast<char *>(&config.primarySuperBlock),
               sizeof(config.primarySuperBlock));
 
-  auto GDTStart = config.blockSize * config.GDTOffset * 1ui64;
+  auto GDTStart = config.blockSize * config.GDTOffset * 1ull;
   image.seekg(GDTStart + group * config.blockSize * sizeof(GroupDescriptor),
               std::ios::beg);
   image.write(reinterpret_cast<char *>(&groupDescriptors[group]),

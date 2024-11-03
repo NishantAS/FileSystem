@@ -10,7 +10,8 @@ file(GLOB SOURCES "src/*.cpp")
 file(GLOB PRIVATE_HEADERS "src/*.hpp")
 file(GLOB PUBLIC_HEADERS "include/*.hpp")
 
-add_executable(FileSystem ${SOURCES} ${PRIVATE_HEADERS} ${PUBLIC_HEADERS})
+add_executable(FileSystem ${SOURCES} ${PUBLIC_HEADERS})
+target_precompile_headers(FileSystem PUBLIC src/pch.hpp)
 target_include_directories(FileSystem PUBLIC include)
 
 install(TARGETS FileSystem DESTINATION bin)
