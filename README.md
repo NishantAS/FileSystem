@@ -1,6 +1,7 @@
 # File System (ext2)
 A CLI application that takes an ext2 image file as an input and allows you to navigate and read its contents without modifying it.
 
+Trial [disk](https://drive.google.com/file/d/1seTKnyT4z6Gsuv9KhgS1QLhxa11tovGe/view?usp=drive_link).
 
 ## Installing
 * Pre compiled binaries for [linux](bin/FileSystem) and [windows](bin/FileSystem.exe).
