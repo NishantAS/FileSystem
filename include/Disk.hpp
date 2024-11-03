@@ -9,7 +9,7 @@
 #include "Naviagtor.hpp"
 
 namespace fsext2 {
-class DiskReader;
+class DiskIOManager;
 
 class Config;
 
@@ -17,7 +17,7 @@ class Disk {
   friend class fsext2::DirectoryEntry;
   friend class fsext2::Directory;
   friend class fsext2::File;
-  friend class fsext2::SymbolicLink;
+  //friend class fsext2::SymbolicLink;
 
 public:
   Disk(const std::string &disk_path);
@@ -29,7 +29,7 @@ public:
   Navigator getNavigator() noexcept;
 
 private:
-  DiskReader *reader;
+  DiskIOManager *reader;
   const Config *config;
 };
 } // namespace fsext2

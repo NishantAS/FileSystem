@@ -4,3 +4,7 @@ Executable/
 .vscode/
 *.img
 install/
+*.vcxproj*
+*.sln
+*x64*
+*x86*

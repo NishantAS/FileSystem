@@ -1,16 +1,14 @@
 #include "Disk.hpp"
-
-#include <format>
-#include <iostream>
+#include "pch.hpp"
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
     std::cerr << "Usage: " << argv[0] << " <disk image>\n";
     return 1;
   }
-  fsext2::Disk disk(argv[1]);
+  fsext2::Disk reader(argv[1]);
   std::string input{};
-  fsext2::Navigator navigator{disk.getNavigator()};
+  fsext2::Navigator navigator{reader.getNavigator()};
 
   while (true) {
     if (std::cin.tellg() != 0) {
@@ -31,18 +29,14 @@ int main(int argc, char *argv[]) {
         std::cout << std::endl;
       } else {
         std::cin >> input;
-        auto entry = navigator.getEntry(input);
+        auto tempNav = navigator;
+        auto entry = tempNav.navigate(input);
         if (entry) {
-          auto dir = fsext2::DirectoryEntry::fromEntry<fsext2::Directory>(
-              entry.value());
-          if (dir) {
-            for (const auto &entry : dir.value().getDirectoryEntires()) {
-              std::cout << entry << '\t';
-            }
-            std::cout << std::endl;
-          } else {
-            std::cout << std::format("{} is not a directory\n", input);
+          for (const auto &entryName :
+               entry.value().get().getDirectoryEntires()) {
+            std::cout << entryName << '\t';
           }
+          std::cout << std::endl;
         } else {
           std::cout << std::format("{} is not a valid path\n", input);
         }
@@ -68,12 +62,13 @@ int main(int argc, char *argv[]) {
         continue;
       }
       std::cin >> input;
-      auto entry = navigator.getEntry(input);
+      auto newNav = navigator;
+      auto entry = newNav.navigate(input.substr(0, input.find_last_of('/')));
       if (entry) {
-        auto file =
-            fsext2::DirectoryEntry::fromEntry<fsext2::File>(entry.value());
-        if (file) {
-          std::cout << file.value().getData();
+        auto file = entry.value().get().getDirectoryEntry(
+            input.substr(input.find_last_of('/')));
+        if (file and file->getType() == fsext2::InodeType::File) {
+          std::cout << reinterpret_cast<fsext2::File *>(file.get())->getData();
         } else {
           std::cout << std::format("{} is not a file\n", input);
         }
@@ -81,7 +76,19 @@ int main(int argc, char *argv[]) {
         std::cout << std::format("{} is not a valid path\n", input);
       }
     } else if (input == "dumpe2fs") {
-      std::cout << disk.dumpe2fs();
+      std::cout << reader.dumpe2fs();
+    } else if (input == "mkdir") {
+      if (std::cin.peek() == '\n') {
+        std::cout << "Usage: mkdir <path>\n";
+        continue;
+      }
+      std::cin >> input;
+      auto dir = navigator.getCurrentDirectory().addDirectoryEntry(
+          input, fsext2::InodeType::Directory);
+      if (!dir) {
+        std::cout << std::format("{} is not a valid path\n", input);
+      }
+      navigator.getCurrentDirectory().updateDirectoryEntries();
     } else {
       std::cout << std::format("Unknown command {}\n", input);
     }

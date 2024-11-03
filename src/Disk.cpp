@@ -1,25 +1,17 @@
-#include <bitset>
-#include <cassert>
-#include <chrono>
-#include <format>
-#include <queue>
-#include <ranges>
-#include <sstream>
-#include <string_view>
-#include <vector>
-
-#include "Config.hpp"
 #include "Disk.hpp"
-#include "DiskReader.hpp"
+#include "Config.hpp"
+#include "DiskIOManager.hpp"
 #include "Enums.hpp"
+#include "pch.hpp"
 
 fsext2::Disk::Disk(const std::string &filename)
     : reader(nullptr), config(nullptr) {
   std::filesystem::path path(filename);
   if (!std::filesystem::exists(path)) {
     throw std::runtime_error("File does not exist");
+    exit(0);
   }
-  reader = new DiskReader(filename);
+  reader = new DiskIOManager(filename);
   config = reader->getConfig();
 }
 
@@ -93,20 +85,22 @@ std::string fsext2::Disk::dumpe2fs() noexcept {
        reader->getGroupDescriptors() | std::views::enumerate) {
     auto startingBlock = i * config->primarySuperBlock.blocksPerGroup +
                          config->primarySuperBlock.blockNumber;
-    auto freeBlocksCount = reader->readFreeBlockCount(i);
-    auto freeInodesCount = reader->readFreeInodeCount(i);
-    auto directoriesCount = reader->readDirectoriesCount(i);
-    auto findBits = [](std::vector<bool> const &vec,
+    auto freeBlocksCount = reader->getGroupDescriptors()[i].freeBlocksCount;
+    auto freeInodesCount = reader->getGroupDescriptors()[i].freeInodesCount;
+    auto directoriesCount = reader->getGroupDescriptors()[i].directoriesCount;
+    auto findBits = [](std::vector<std::uint8_t> const &vec,
                        std::uint32_t const initialBlock) -> std::string {
       std::uint32_t begin{}, end{};
       std::ostringstream oss{};
-      while (begin < vec.size()) {
-        while (begin < vec.size() && vec[begin])
+      while (begin < vec.size() * 8) {
+        while (begin < vec.size() * 8 and
+               vec[begin / 8] bitand (1 << (begin % 8)))
           ++begin;
         end = begin;
-        while (end < vec.size() && !vec[end])
+        while (end < vec.size() * 8 and
+               not(vec[end / 8] bitand (1 << (end % 8))))
           ++end;
-        if (begin < vec.size()) {
+        if (begin < vec.size() * 8) {
           oss << begin + initialBlock;
           if (end - 1 != begin) {
             oss << '-' << end - 1 + initialBlock << ", ";
@@ -130,7 +124,7 @@ std::string fsext2::Disk::dumpe2fs() noexcept {
         findBits(reader->readBlockUsageBitmap(i), startingBlock);
     std::string freeInodes =
         findBits(reader->readInodeUsageBitmap(i),
-                 config->primarySuperBlock.inodesPerGroup + 1);
+                 config->primarySuperBlock.inodesPerGroup * i + 1);
 
     stream << std::format(
         R"(Group {}: (Blocks {}-{})
@@ -163,8 +157,4 @@ std::string fsext2::Disk::dumpe2fs() noexcept {
   return stream.str();
 }
 
-fsext2::Navigator fsext2::Disk::getNavigator() noexcept {
-  return Navigator(
-      DirectoryEntry::fromEntry<Directory>(DirectoryEntry(*this, "", 2))
-          .value());
-}
+fsext2::Navigator fsext2::Disk::getNavigator() noexcept { return *(this->reader); }

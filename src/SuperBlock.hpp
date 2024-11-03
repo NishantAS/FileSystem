@@ -10,7 +10,7 @@ enum RequiredFeatures : std::uint32_t;
 enum ReadOnlyFeatures : std::uint32_t;
 
 struct SuperBlock {
-  friend class DiskReader;
+  friend class DiskIOManager;
   std::uint32_t inodeCount;
   std::uint32_t blockCount;
   std::uint32_t reservedBlockCount;

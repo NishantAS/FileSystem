@@ -9,13 +9,19 @@
 namespace fsext2 {
 class Navigator {
 public:
-  Navigator(const Directory &root) : stack() { stack.push_back(root); }
+  // template</*std::constructible_from<Directory>*/class ...Args>
+  // Navigator(Args&&... root) : stack() {
+  // stack.emplace_back(std::forward<Args>(root)...); }
+
+  Navigator(DiskIOManager &reader) : stack() {
+    stack.emplace_back(reader, "", 2);
+  } // root directory
 
   std::optional<std::reference_wrapper<Directory>> navigate(std::string path) {
     if (path.empty()) {
       return stack.back();
     }
-    if (path.back() == '/' && path.size() != 1) {
+    if (path.back() == '/' and path.size() != 1) {
       path.pop_back();
     }
     if (path[0] != '/') {
@@ -37,15 +43,13 @@ public:
         return navigate(path.substr(slash + 1));
       }
       auto &&entry = dir.getDirectoryEntry(path.substr(0, slash));
-      if (entry) {
-        auto asDir = DirectoryEntry::fromEntry<Directory>(entry.value());
-        if (asDir) {
-          stack.push_back(asDir.value());
-          if (slash == std::string::npos) {
-            return stack.back();
-          }
-          return navigate(path.substr(slash + 1));
+      if (entry and entry->getType() == InodeType::Directory) {
+        Directory *tmp = reinterpret_cast<Directory *>(entry.get());
+        stack.push_back(std::forward_like<Directory&&>(*tmp));
+        if (slash == std::string::npos) {
+          return stack.back();
         }
+        return navigate(path.substr(slash + 1));
       }
     } else {
       while (stack.size() > 1) {
@@ -56,9 +60,9 @@ public:
     return {};
   }
 
-  const Directory &getCurrentDirectory() { return stack.back(); }
+  Directory &getCurrentDirectory() { return stack.back(); }
 
-  std::optional<DirectoryEntry> getEntry(std::string name) {
+  /*std::optional<DirectoryEntry> getEntry(std::string name) {
     if (name.contains('/')) {
       auto temp = *this;
       auto res = temp.navigate(name.substr(0, name.rfind('/')));
@@ -71,7 +75,7 @@ public:
             name.substr(name.rfind('/') + 1));
     }
     return stack.back().getDirectoryEntry(name);
-  }
+  }*/
 
   std::string getPath() {
     if (stack.size() == 1) {
