@@ -62,21 +62,43 @@ int main(int argc, char *argv[]) {
         continue;
       }
       std::cin >> input;
+      if (input.contains('/')) {
       auto newNav = navigator;
       auto entry = newNav.navigate(input.substr(0, input.find_last_of('/')));
       if (entry) {
         auto file = entry.value().get().getDirectoryEntry(
             input.substr(input.find_last_of('/')));
         if (file and file->getType() == fsext2::InodeType::File) {
-          std::cout << reinterpret_cast<fsext2::File *>(file.get())->getData();
+            std::cout
+                << reinterpret_cast<fsext2::File *>(file.get())->getData();
         } else {
           std::cout << std::format("{} is not a file\n", input);
         }
       } else {
         std::cout << std::format("{} is not a valid path\n", input);
       }
+      } else {
+        auto file = navigator.getCurrentDirectory().getDirectoryEntry(input);
+        if (file and file->getType() == fsext2::InodeType::File) {
+          std::cout << reinterpret_cast<fsext2::File *>(file.get())->getData();
+        } else {
+          std::cout << std::format("{} is not a file\n", input);
+        }
+      }
     } else if (input == "dumpe2fs") {
       std::cout << reader.dumpe2fs();
+    } else if (input == "touch") {
+      if (std::cin.peek() == '\n') {
+        std::cout << "Usage: mkdir <path>\n";
+        continue;
+      }
+      std::cin >> input;
+      auto dir = navigator.getCurrentDirectory().addDirectoryEntry(
+          input, fsext2::InodeType::File);
+      if (!dir) {
+        std::cout << std::format("{} is not a valid path\n", input);
+      }
+      navigator.getCurrentDirectory().updateDirectoryEntries();
     } else if (input == "mkdir") {
       if (std::cin.peek() == '\n') {
         std::cout << "Usage: mkdir <path>\n";
