@@ -1,10 +1,6 @@
 # File System (ext2)
 A CLI application that takes an ext2 image file as an input and allows you to navigate and read its contents without modifying it.
 
-### Tasks completed for Systems and Security SIG Recruitment 2024:
-* [x] Read the superblock and block group descriptor.
-* [x] Locate files in the root directory.
-* [x] Read contents from within subdirectories.
 
 ## Installing
 * Pre compiled binaries for [linux](bin/FileSystem) and [windows](bin/FileSystem.exe).
@@ -88,8 +84,25 @@ FileSystem <path to image>
     uesr@machine:/$
     ```
 
+6. `touch` : Create a text file
 
-6. `dumpe2fs` : Gives the details about the super block and group descriptors (similar to dumpe2fs from linux).
+    **Usage :** `touch <path to file>`
+    ```bash
+    user@machine:/$ touch temp
+    user@machine:/$ ls
+    .  ..  dir1  dir2  dir3  dir4  dir5  lost+found  readthis.txt temp
+    ```
+
+7. `mkdir` : Create a dir
+    
+    **Usage :**`mkdir <path to dir>`
+    ```bash
+    user@machine:/$ mkdir test
+    user@machine:/$ ls test
+    .  ..
+    ```
+
+8. `dumpe2fs` : Gives the details about the super block and group descriptors (similar to dumpe2fs from linux).
   
     **Usage :**
     ```bash
